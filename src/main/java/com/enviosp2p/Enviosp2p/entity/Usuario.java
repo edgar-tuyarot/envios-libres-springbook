@@ -44,9 +44,8 @@ public class Usuario {
     private LocalDateTime fechaCreacion;
 
 
-    @Column(nullable = false)
+    @Column()
     private LocalDateTime fechaEliminacion;
-
 
 
 }

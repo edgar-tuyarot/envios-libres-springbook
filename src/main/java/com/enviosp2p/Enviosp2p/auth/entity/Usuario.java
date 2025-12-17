@@ -1,6 +1,6 @@
-package com.enviosp2p.Enviosp2p.entity;
+package com.enviosp2p.Enviosp2p.auth.entity;
 
-import com.enviosp2p.Enviosp2p.enums.Rol;
+import com.enviosp2p.Enviosp2p.auth.enums.Rol;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

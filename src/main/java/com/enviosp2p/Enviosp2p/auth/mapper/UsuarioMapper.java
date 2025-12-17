@@ -1,8 +1,8 @@
-package com.enviosp2p.Enviosp2p.mapper;
+package com.enviosp2p.Enviosp2p.auth.mapper;
 
-import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
-import com.enviosp2p.Enviosp2p.entity.Usuario;
-import com.enviosp2p.Enviosp2p.enums.Rol;
+import com.enviosp2p.Enviosp2p.auth.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.auth.entity.Usuario;
+import com.enviosp2p.Enviosp2p.auth.enums.Rol;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

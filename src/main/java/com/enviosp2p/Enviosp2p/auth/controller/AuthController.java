@@ -1,8 +1,9 @@
-package com.enviosp2p.Enviosp2p.controller;
+package com.enviosp2p.Enviosp2p.auth.controller;
 
-import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
-import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
-import com.enviosp2p.Enviosp2p.service.AuthService;
+import com.enviosp2p.Enviosp2p.auth.dto.AuthResponseDto;
+import com.enviosp2p.Enviosp2p.auth.dto.LoginRequestDto;
+import com.enviosp2p.Enviosp2p.auth.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +33,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto request) {
-        // Si la autenticación falla, Spring Security lanza una excepción automática (BadCredentialsException)
-        // que por defecto devuelve un 401 o 403, así que aquí asumimos éxito.
-        String usuarioAutenticado = authService.autenticarUsuario(request);
-        return ResponseEntity.ok("Login exitoso: Bienvenido " + usuarioAutenticado);
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
+        //el servicio nos devuelve el objeto con el token
+        AuthResponseDto respuesta = authService.autenticarUsuario(request);
+
+        // Lo entregamos en el cuerpo de la respuesta (Status 200 OK)
+        return ResponseEntity.ok(respuesta);
     }
 }

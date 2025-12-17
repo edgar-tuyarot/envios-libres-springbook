@@ -1,25 +1,25 @@
-package com.enviosp2p.Enviosp2p.service;
+package com.enviosp2p.Enviosp2p.auth.service;
 
-import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
-import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
-import com.enviosp2p.Enviosp2p.entity.Usuario;
-import com.enviosp2p.Enviosp2p.mapper.UsuarioMapper;
-import com.enviosp2p.Enviosp2p.repository.UsuarioRepository;
+import com.enviosp2p.Enviosp2p.auth.dto.AuthResponseDto;
+import com.enviosp2p.Enviosp2p.auth.dto.LoginRequestDto;
+import com.enviosp2p.Enviosp2p.auth.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.auth.entity.Usuario;
+import com.enviosp2p.Enviosp2p.auth.mapper.UsuarioMapper;
+import com.enviosp2p.Enviosp2p.auth.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UsuarioMapper usuarioMapper;
@@ -42,16 +42,19 @@ public class AuthService {
     }
 
     // Lógica de Login
-    public String autenticarUsuario(LoginRequestDto request) {
-        //Autenticar con el Manager de Spring
-        Authentication authentication = authenticationManager.authenticate(
+    public AuthResponseDto autenticarUsuario(LoginRequestDto request) {
+        // 1. Autenticamos
+        authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.correo(), request.contrasena())
         );
 
-        //Guardar en el contexto de seguridad
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 2. Buscamos al usuario (Asegúrate de importar UserDetails de Spring Security)
+        var userDetails = userDetailsService.loadUserByUsername(request.correo());
 
-        //Retornar algo (Por ahora el nombre, luego será el Token JWT)
-        return authentication.getName();
+        // 3. Generamos el token
+        String jwtToken = jwtService.generateToken(userDetails);
+
+        // 4. Retornamos el objeto DTO con el token dentro
+        return new AuthResponseDto(jwtToken);
     }
 }

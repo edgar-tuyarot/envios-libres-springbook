@@ -1,7 +1,7 @@
-package com.enviosp2p.Enviosp2p.service;
+package com.enviosp2p.Enviosp2p.auth.service;
 
-import com.enviosp2p.Enviosp2p.entity.Usuario;
-import com.enviosp2p.Enviosp2p.repository.UsuarioRepository;
+import com.enviosp2p.Enviosp2p.auth.entity.Usuario;
+import com.enviosp2p.Enviosp2p.auth.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,8 +1,6 @@
 package com.enviosp2p.Enviosp2p.controller;
 
-import com.enviosp2p.Enviosp2p.dto.AuthResponseDto;
-import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
-import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.dto.*;
 import com.enviosp2p.Enviosp2p.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +37,18 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/recuperar-password")
+    public ResponseEntity<String> recuperarPassword(@RequestBody SolicitudRecuperacionDto dto) {
+        authService.solicitarRecuperacion(dto.correo());
+        return ResponseEntity.ok("Si el correo existe, se han enviado las instrucciones.");
+    }
+
+    @PostMapping("/cambiar-password")
+    public ResponseEntity<String> cambiarPassword(@RequestBody CambioPasswordDto dto) {
+        authService.confirmarCambioPassword(dto.token(), dto.contrasenaActual());
+        return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
 
 

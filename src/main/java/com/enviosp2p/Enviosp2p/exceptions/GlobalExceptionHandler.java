@@ -79,5 +79,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> manejoDeToken(InvalidTokenException ex){
+        ErrorResponse error = ErrorResponse.builder()
+                .codigo("AUTH-400")
+                .detalles("Token Invalido")
+                .mensaje("Token Invalido")
+                .fecha(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error,HttpStatus.CONFLICT);
+    }
 
 }

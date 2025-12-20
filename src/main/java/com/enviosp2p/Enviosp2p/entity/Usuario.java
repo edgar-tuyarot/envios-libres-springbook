@@ -46,8 +46,15 @@ public class Usuario {
     @Column()
     private LocalDateTime fechaEliminacion;
 
-
     @Column(name = "token_activacion")
     private String tokenActivacion;
+
+    @Column(name = "token_recuperacion")
+    private String tokenRecuperacion;
+
+    @Column(name="token_expiracion")
+    private LocalDateTime tokenExpiracion;
+
+
 
 }

@@ -4,6 +4,8 @@ import com.enviosp2p.Enviosp2p.dto.AuthResponseDto;
 import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
 import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
 import com.enviosp2p.Enviosp2p.entity.Usuario;
+import com.enviosp2p.Enviosp2p.exceptions.InvalidTokenException;
+import com.enviosp2p.Enviosp2p.exceptions.UserNotFoundException;
 import com.enviosp2p.Enviosp2p.mapper.UsuarioMapper;
 import com.enviosp2p.Enviosp2p.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -27,6 +30,8 @@ public class AuthService {
     private final UsuarioMapper usuarioMapper;
     private final EmailService emailService; // 1. Inyectamos el servicio de Email
 
+
+    //Registro de Usuario
     public void registrarUsuario(RegistroRequestDto request) {
         if (usuarioRepository.existsByCorreo(request.correo())) {
             throw new RuntimeException("El correo ya está registrado");
@@ -48,7 +53,7 @@ public class AuthService {
         emailService.enviarCorreoActivacion(nuevoUsuario.getCorreo(), tokenActivacion);
     }
 
-    // AGREGAMOS EL MeTODO DE ACTIVACIÓN
+    //Activacion De Cuenta
     public void activarCuenta(String token) {
         // 1. Buscamos al usuario por el token
         // (Necesitarás agregar este método en el Repository, ver Paso 2.5 abajo 👇)
@@ -63,7 +68,7 @@ public class AuthService {
         usuarioRepository.save(usuario);
     }
 
-    // Lógica de Login
+    //Login
     public AuthResponseDto autenticarUsuario(LoginRequestDto request) {
         // 1. Autenticamos
         authenticationManager.authenticate(
@@ -79,4 +84,47 @@ public class AuthService {
         // 4. Retornamos el objeto DTO con el token dentro
         return new AuthResponseDto(jwtToken);
     }
+
+    //Solicitud de recupero de contraseña
+    public void solicitarRecuperacion(String correo) throws UserNotFoundException {
+        // Buscamos usuario. Si no existe, no hacemos nada (por seguridad no avisamos "no existe")
+        // O puedes lanzar excepción si prefieres ser explícito con el frontend.
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new UserNotFoundException("El usuario no existe"));
+
+        // Generamos un token aleatorio seguro
+        String token = UUID.randomUUID().toString();
+
+        // Guardamos token y fecha (ej: 15 minutos de vida)
+        usuario.setTokenRecuperacion(token);
+        usuario.setTokenExpiracion(LocalDateTime.now().plusMinutes(15));
+
+        usuarioRepository.save(usuario);
+
+        // Enviamos el correo (Aquí usas tu lógica de email ya existente)
+        String link = "http://tusitio.com/reset-password?token=" + token;
+        emailService.enviarCorreoRecuperacion(correo, link);
+    }
+
+    //Valida token y cambia password
+    public void confirmarCambioPassword(String token, String nuevaPassword) {
+        // Buscamos por el token
+        Usuario usuario = usuarioRepository.findByTokenRecuperacion(token)
+                .orElseThrow(() -> new InvalidTokenException("Token inválido o no encontrado"));
+
+        // Verificamos si ya expiró
+        if (usuario.getTokenExpiracion().isBefore(LocalDateTime.now())) {
+            throw new InvalidTokenException("El token ha expirado. Solicita uno nuevo.");
+        }
+
+        //Encriptamos la nueva contraseña antes de guardar
+        usuario.setContrasena(passwordEncoder.encode(nuevaPassword));
+
+        //Limpiamos el token para que no se pueda volver a usar (Seguridad)
+        usuario.setTokenRecuperacion(null);
+        usuario.setTokenExpiracion(null);
+
+        usuarioRepository.save(usuario);
+    }
+
 }

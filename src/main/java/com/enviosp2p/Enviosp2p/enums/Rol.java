@@ -1,4 +1,4 @@
-package com.enviosp2p.Enviosp2p.auth.enums;
+package com.enviosp2p.Enviosp2p.enums;
 
 public enum Rol {
     USER,

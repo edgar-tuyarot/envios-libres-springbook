@@ -1,4 +1,4 @@
-package com.enviosp2p.Enviosp2p.auth.service;
+package com.enviosp2p.Enviosp2p.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

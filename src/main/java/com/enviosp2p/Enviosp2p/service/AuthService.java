@@ -1,17 +1,19 @@
-package com.enviosp2p.Enviosp2p.auth.service;
+package com.enviosp2p.Enviosp2p.service;
 
-import com.enviosp2p.Enviosp2p.auth.dto.AuthResponseDto;
-import com.enviosp2p.Enviosp2p.auth.dto.LoginRequestDto;
-import com.enviosp2p.Enviosp2p.auth.dto.RegistroRequestDto;
-import com.enviosp2p.Enviosp2p.auth.entity.Usuario;
-import com.enviosp2p.Enviosp2p.auth.mapper.UsuarioMapper;
-import com.enviosp2p.Enviosp2p.auth.repository.UsuarioRepository;
+import com.enviosp2p.Enviosp2p.dto.AuthResponseDto;
+import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
+import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.entity.Usuario;
+import com.enviosp2p.Enviosp2p.mapper.UsuarioMapper;
+import com.enviosp2p.Enviosp2p.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,22 +25,42 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UsuarioMapper usuarioMapper;
+    private final EmailService emailService; // 1. Inyectamos el servicio de Email
 
-    // Lógica de Registro
     public void registrarUsuario(RegistroRequestDto request) {
-        //REGLA DE NEGOCIO: Validar existencia
         if (usuarioRepository.existsByCorreo(request.correo())) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
-        //Encriptar contraseña
         String passEncoded = passwordEncoder.encode(request.contrasena());
 
-        //Delegamos la construcción sucia al Mapper
+        // Usamos el Mapper...
         Usuario nuevoUsuario = usuarioMapper.toEntity(request, passEncoded);
 
-        //Guardar
+        // 2. Generamos un token único (UUID es perfecto para esto)
+        String tokenActivacion = UUID.randomUUID().toString();
+        nuevoUsuario.setTokenActivacion(tokenActivacion);
+
+        // Guardamos (nace inactivo y con token)
         usuarioRepository.save(nuevoUsuario);
+
+        // 3. Enviamos el correo (OJO: Esto puede tardar unos segundos, en producción se hace asíncrono)
+        emailService.enviarCorreoActivacion(nuevoUsuario.getCorreo(), tokenActivacion);
+    }
+
+    // AGREGAMOS EL MeTODO DE ACTIVACIÓN
+    public void activarCuenta(String token) {
+        // 1. Buscamos al usuario por el token
+        // (Necesitarás agregar este método en el Repository, ver Paso 2.5 abajo 👇)
+        Usuario usuario = usuarioRepository.findByTokenActivacion(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido o expirado"));
+
+        // 2. Activamos
+        usuario.setActivo(true);
+        usuario.setTokenActivacion(null); // Borramos el token para que no se use dos veces
+
+        // 3. Guardamos cambios
+        usuarioRepository.save(usuario);
     }
 
     // Lógica de Login

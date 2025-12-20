@@ -1,6 +1,6 @@
 package com.enviosp2p.Enviosp2p.config;
 
-import com.enviosp2p.Enviosp2p.auth.service.JwtService; // Ojo a los nuevos imports
+import com.enviosp2p.Enviosp2p.service.JwtService; // Ojo a los nuevos imports
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -54,6 +55,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Buscamos al usuario en BD
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
+
+            // En tu JwtFilter
+            for (GrantedAuthority auth : userDetails.getAuthorities()) {
+                System.out.println("Rol exacto: '" + auth.getAuthority() + "'");
+                // Las comillas simples '' te revelarán si hay espacios o corchetes extra
+            }
+
+
             // 6. Si el token es válido, actualizamos el contexto de seguridad
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -62,6 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         userDetails.getAuthorities()
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
 
                 // AQUÍ OCURRE LA MAGIA: Le decimos a Spring "Este usuario está logueado"
                 SecurityContextHolder.getContext().setAuthentication(authToken);

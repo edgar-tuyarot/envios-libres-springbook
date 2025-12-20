@@ -1,6 +1,6 @@
-package com.enviosp2p.Enviosp2p.auth.entity;
+package com.enviosp2p.Enviosp2p.entity;
 
-import com.enviosp2p.Enviosp2p.auth.enums.Rol;
+import com.enviosp2p.Enviosp2p.enums.Rol;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,9 +43,11 @@ public class Usuario {
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
-
     @Column()
     private LocalDateTime fechaEliminacion;
 
+
+    @Column(name = "token_activacion")
+    private String tokenActivacion;
 
 }

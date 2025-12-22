@@ -1,9 +1,8 @@
 package com.enviosp2p.Enviosp2p.controller;
 
-import com.enviosp2p.Enviosp2p.dto.*;
+import com.enviosp2p.Enviosp2p.dto.auth.*;
 import com.enviosp2p.Enviosp2p.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

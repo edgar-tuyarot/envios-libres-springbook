@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Manejar el error de permisos (El famoso 403 que sufriste recién)
-    // Esto captura cuando @PreAuthorize bloquea a alguien.
+    //Manejar el error de permisos
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> manejarAccessDenied(AccessDeniedException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -27,8 +26,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    // 2. Manejar rutas inexistentes
-    // En Spring Boot 3, esto captura cuando escribes mal la URL.
+    //Manejar rutas inexistentes
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> manejarRutaNoEncontrada(NoResourceFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -40,7 +38,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // 3. Manejar cualquier otro error no previsto (El "Catch-All")
+    //Manejar cualquier otro error no previsto
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> manejarErrorGeneral(Exception ex) {
         // Aquí podrías agregar un log para ti
@@ -49,13 +47,14 @@ public class GlobalExceptionHandler {
         ErrorResponse error = ErrorResponse.builder()
                 .codigo("INTERNAL-500")
                 .mensaje("Ocurrió un error inesperado en el servidor. Intenta más tarde.")
-                .detalles(ex.getMessage()) // Cuidado: en producción, evita mostrar esto si es sensible
+                .detalles("Error de servidor")
                 .fecha(LocalDateTime.now())
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    //Error cuando el usuario no existe en el login, Solo en el login
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> manejarUserNotFound(UsernameNotFoundException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -68,6 +67,7 @@ public class GlobalExceptionHandler {
     }
 
 
+    //Error cuando la contraseña es erronea
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> manejarBadCredentials(BadCredentialsException ex) {
         ErrorResponse error = ErrorResponse.builder()
@@ -79,16 +79,29 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    //Error de tokens al resetear contraseña
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> manejoDeToken(InvalidTokenException ex){
         ErrorResponse error = ErrorResponse.builder()
-                .codigo("AUTH-400")
+                .codigo("AUTH-409")
                 .detalles("Token Invalido")
-                .mensaje("Token Invalido")
+                .mensaje(ex.getMessage())
                 .fecha(LocalDateTime.now())
                 .build();
 
         return new ResponseEntity<>(error,HttpStatus.CONFLICT);
     }
 
+    //Errores de negocio
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> manejarNegocio(BusinessException ex) {
+        ErrorResponse error = ErrorResponse.builder()
+                .codigo("NEGOCIO-409")
+                .detalles("Error de negocio")
+                .mensaje(ex.getMessage())
+                .fecha(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }

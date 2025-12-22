@@ -1,4 +1,4 @@
-package com.enviosp2p.Enviosp2p.dto;
+package com.enviosp2p.Enviosp2p.dto.auth;
 
 import lombok.Builder;
 

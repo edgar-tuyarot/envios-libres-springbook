@@ -1,8 +1,8 @@
 package com.enviosp2p.Enviosp2p.service;
 
-import com.enviosp2p.Enviosp2p.dto.AuthResponseDto;
-import com.enviosp2p.Enviosp2p.dto.LoginRequestDto;
-import com.enviosp2p.Enviosp2p.dto.RegistroRequestDto;
+import com.enviosp2p.Enviosp2p.dto.auth.AuthResponseDto;
+import com.enviosp2p.Enviosp2p.dto.auth.LoginRequestDto;
+import com.enviosp2p.Enviosp2p.dto.auth.RegistroRequestDto;
 import com.enviosp2p.Enviosp2p.entity.Usuario;
 import com.enviosp2p.Enviosp2p.exceptions.InvalidTokenException;
 import com.enviosp2p.Enviosp2p.exceptions.UserNotFoundException;

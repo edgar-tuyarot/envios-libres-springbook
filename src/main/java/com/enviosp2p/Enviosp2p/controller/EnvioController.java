@@ -47,7 +47,22 @@ public class EnvioController {
         return ResponseEntity.ok(envioService.verMisEnvios());
     }
 
+    //Ver envios cerrados
+    @GetMapping("/pedidos-cerrados")
+    public ResponseEntity<List<EnvioDto>> verPedidosCerrados(){
+        return ResponseEntity.ok(envioService.verMiEnviosCerrados());
+    }
 
+    //Liberar envio
+    @PostMapping("/{id}/liberar")
+    public ResponseEntity<Map<String, String>> liberarEnvio(@PathVariable Long id) {
+        envioService.liberarEnvio(id);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("mensaje", "¡Envío liberado con éxito!"));
+    }
+
+
+    //Publicar envio
     @PostMapping
     public ResponseEntity<Map<String, String>> crear(@RequestBody @Valid CrearEnvioDto dto) {
         envioService.crearEnvio(dto);
@@ -55,11 +70,19 @@ public class EnvioController {
                 .body(Map.of("mensaje", "¡Envío publicado con éxito!"));
     }
 
+    //Tomar envio
     @PostMapping("/{id}/tomar")
     public ResponseEntity<EnvioDto> tomarEnvio(@PathVariable Long id) {
         return ResponseEntity.ok(envioService.tomarEnvio(id));
     }
 
+    //Comenzar viaje
+    @PostMapping("/{id}/comenzar")
+    public ResponseEntity<EnvioDto> comenzarViaje(@PathVariable Long id){
+        return ResponseEntity.ok(envioService.comenzarViaje(id));
+    }
+
+    //Terminar envio
     @PostMapping("/{id}/cerrar")
     public ResponseEntity<EnvioDto> cerrarEnvio(@PathVariable Long id, @RequestBody String codigoConfirmacion) {
            return ResponseEntity.ok(envioService.cerrarEnvio(id, codigoConfirmacion));

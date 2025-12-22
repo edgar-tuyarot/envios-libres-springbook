@@ -110,6 +110,8 @@ public class EnvioMapper {
                 entidad.getFechaCreacion(),
                 //Fecha Asignacion
                 entidad.getFechaAsignacion(),
+                //Fecha Inicio
+                entidad.getFechaInicio(),
                 //Fecha Cierre
                 entidad.getFechaCierre()
 

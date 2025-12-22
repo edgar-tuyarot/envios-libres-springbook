@@ -14,6 +14,8 @@ public interface EnvioRepository extends JpaRepository<Envio, Long> {
 
     List<Envio> findByViajeroAndEstado(Usuario viajero, EstadoEnvio estadoEnvio);
 
+    List<Envio> findByViajero(Usuario viajero);
+
     List<Envio> findByEstado(EstadoEnvio estadoEnvio);
 
     List<Envio> findByRemitente(Usuario remitente);

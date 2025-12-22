@@ -49,6 +49,8 @@ public class Envio {
 
     private LocalDateTime fechaAsignacion;
 
+    private LocalDateTime fechaInicio;
+
     private LocalDateTime fechaCierre;
 
     // --- LAS DIRECCIONES (EMBEDDED) ---

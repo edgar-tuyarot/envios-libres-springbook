@@ -19,6 +19,7 @@ public record MiEnvioDto(
         BigDecimal distancia,
         LocalDateTime fecha_creacion,
         LocalDateTime fecha_asignacion,
+        LocalDateTime fecha_inicio,
         LocalDateTime fecha_cierre
 ) {
 }

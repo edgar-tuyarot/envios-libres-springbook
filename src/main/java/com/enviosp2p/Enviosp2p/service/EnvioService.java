@@ -89,11 +89,13 @@ public class EnvioService {
         String emailUsuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
         Usuario remitente = usuarioRepository.findByCorreo(emailUsuarioActual)
                 .orElseThrow(() -> new UserNotFoundException("Error de integridad: Usuario del token no encontrado en BD"));
-        List<Envio> enviosAsignados = envioRepository.findByViajeroAndEstado(remitente, EstadoEnvio.ASIGNADO);
+        List<Envio> enviosAsignados = envioRepository.findByViajero(remitente);
 
 
         for (Envio envio : enviosAsignados){
-            enviosDto.add(envioMapper.aDto(envio));
+            if (envio.getEstado()==EstadoEnvio.ASIGNADO || envio.getEstado()==EstadoEnvio.EN_TRANSITO){
+                enviosDto.add(envioMapper.aDto(envio));
+            }
         }
 
         return enviosDto;
@@ -107,6 +109,55 @@ public class EnvioService {
                 .map(envioMapper::aDto)
                 .toList();
 
+    }
+
+    //Envios disponibles para tomar
+    public List<EnvioDto> verMiEnviosCerrados(){
+        List<EnvioDto> enviosDto =  new ArrayList<>();
+        String emailUsuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario remitente = usuarioRepository.findByCorreo(emailUsuarioActual)
+                .orElseThrow(() -> new UserNotFoundException("Error de integridad: Usuario del token no encontrado en BD"));
+        List<Envio> enviosAsignados = envioRepository.findByViajeroAndEstado(remitente, EstadoEnvio.ENTREGADO);
+
+
+        for (Envio envio : enviosAsignados){
+            enviosDto.add(envioMapper.aDto(envio));
+        }
+
+        return enviosDto;
+
+    }
+
+    //Soltar Pedido
+    public void liberarEnvio(Long id){
+        Envio envio = envioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Envío inexistente"));
+
+        if (envio.getEstado()==EstadoEnvio.ASIGNADO){
+            envio.setEstado(EstadoEnvio.PENDIENTE);
+            envio.setViajero(null);
+        }
+
+    }
+
+    //Comenzar viaje
+    @Transactional
+    public EnvioDto comenzarViaje(Long envioId) {
+        Envio envio = envioRepository.findById(envioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Envío inexistente"));
+
+        if (envio.getEstado() != EstadoEnvio.ASIGNADO) {
+            throw new BusinessException("El envío no está asignado a ningún viajero.");
+        }
+        String emailUsuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!envio.getViajero().getCorreo().equals(emailUsuarioActual)){
+            throw new BusinessException("No eres el remitente del envío.");
+        }
+        envio.setEstado(EstadoEnvio.EN_TRANSITO);
+        envio.setFechaCierre(LocalDateTime.now());
+        envioRepository.save(envio);
+
+        return envioMapper.aDto(envio);
     }
 
     //Envios creados por el usuario
@@ -128,8 +179,8 @@ public class EnvioService {
         Envio envio = envioRepository.findById(envioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Envío inexistente"));
 
-        if (envio.getEstado() != EstadoEnvio.ASIGNADO) {
-            throw new BusinessException("El envío no está asignado a ningún viajero.");
+        if (envio.getEstado() != EstadoEnvio.EN_TRANSITO) {
+            throw new BusinessException("El envío no está en transitoa.");
         }
         if (envio.getCodigo_confirmacion() != null || envio.getCodigo_confirmacion().equals(codigoConfirmacion)){
             envio.setEstado(EstadoEnvio.ENTREGADO);

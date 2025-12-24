@@ -136,6 +136,7 @@ public class EnvioService {
         if (envio.getEstado()==EstadoEnvio.ASIGNADO){
             envio.setEstado(EstadoEnvio.PENDIENTE);
             envio.setViajero(null);
+            envioRepository.save(envio);
         }
 
     }
@@ -190,6 +191,27 @@ public class EnvioService {
             return envioMapper.aDto(envio);
 
         }
+        return envioMapper.aDto(envio);
+    }
+
+
+    //Comenzar viaje
+    @Transactional
+    public EnvioDto cancelaEnvio(Long envioId) {
+        Envio envio = envioRepository.findById(envioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Envío inexistente"));
+
+        if (envio.getEstado() != EstadoEnvio.ASIGNADO) {
+            throw new BusinessException("El envío no está asignado a ningún viajero.");
+        }
+        String emailUsuarioActual = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!envio.getRemitente().getCorreo().equals(emailUsuarioActual)){
+            throw new BusinessException("No eres el remitente del envío.");
+        }
+        envio.setEstado(EstadoEnvio.CANCELADO);
+        envio.setFechaCierre(LocalDateTime.now());
+        envioRepository.save(envio);
+
         return envioMapper.aDto(envio);
     }
 

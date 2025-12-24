@@ -38,3 +38,12 @@
 - **Seguridad:** Spring Security 6 + JJWT
 - **Utilidades:** Lombok, JavaMailSender
 - **Validación:** Jakarta Validation (Bean Validation)
+
+<img width="389" height="836" alt="imagen" src="https://github.com/user-attachments/assets/f32c5360-eeb9-40f0-9ac5-a376184996f6" />
+
+<img width="384" height="836" alt="imagen" src="https://github.com/user-attachments/assets/f07d0754-5d08-4eb7-a080-8a676a175975" />
+
+<img width="387" height="844" alt="imagen" src="https://github.com/user-attachments/assets/08057526-a0b3-471f-8dad-870beefa24a0" />
+
+<img width="387" height="836" alt="imagen" src="https://github.com/user-attachments/assets/054fc5a3-8ec4-4a80-8628-dfa16ba16470" />
+
